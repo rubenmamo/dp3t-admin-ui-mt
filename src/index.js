@@ -1,13 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import 'normalize.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import { AzureAD } from 'react-aad-msal';
+import { authProvider } from './authProvider';
+
+// Importing the Bootstrap CSS
+//import 'bootstrap/dist/css/bootstrap.min.css';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+	<AzureAD provider={authProvider} forceLogin={true}>
+{
+    ({login, logout, authenticationState, error, accountInfo}) => {
+          return (
+            <React.StrictMode>
+              <App login={login} logout={logout} authenticationState={authenticationState} accountInfo={accountInfo}/>
+            </React.StrictMode>
+                );
+    }
+  }
+	</AzureAD>,
   document.getElementById('root')
 );
 

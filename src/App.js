@@ -1,26 +1,127 @@
-import React from 'react';
+import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import Jumbotron from 'react-bootstrap/Jumbotron';
+import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/Button';
+import Navbar from 'react-bootstrap/Navbar';
+import Nav from 'react-bootstrap/Nav';
+import NavDropdown from 'react-bootstrap/NavDropdown';
+import { AzureAD, AuthenticationState } from 'react-aad-msal';
+
+import { Route, Router, NavLink } from 'react-router-dom'
+import CovidCodesList from './covidCodesList';
+import ExposureConfig from './ExposureConfig';
+import Home from './Home';
+import Unauthorised from './Unauthorised';
+
+const history = require("history").createBrowserHistory();
+
+class App extends Component {
+
+  constructor(props) {
+    super(props);
+	console.log(props.accountInfo);
+	console.log("***********************");
+	console.log(props.authenticationState);
+    // This binding is necessary to make `this` work in the callback
+    this.handleClick = this.handleClick.bind(this);
+    this.state = {};
+  }
+
+  handleClick() {
+    history.push('/partner-apps');
+  }
+
+  componentDidMount() {
+
+    console.log("DP3T Management UI started");
+  
+  }
+  
+ 
+  render() {
+    const { logout, authenticationState, accountInfo } = this.props;
+    return (
+	<Router history={history}>
+		<Navbar id="header-navbar" bg="dark" variant="dark" expand="md">
+			<Container fluid="md">
+				<Navbar.Brand href="#home">CovidMalta</Navbar.Brand>
+				<Navbar.Toggle aria-controls="basic-navbar-nav" />
+				<Navbar.Collapse id="basic-navbar-nav">
+					<Nav className="mr-auto">
+						<NavLink exact={true} className="nav-link" to="/">Home</NavLink>
+						<NavLink className="nav-link" to="/covid-codes">CovidCodes</NavLink>
+						{/*<NavLink exact={true} className="nav-link" to="/exposure-config">Exposure Configuration</NavLink>*/}
+					</Nav>
+					<Nav className="ml-auto">
+						<AuthenticationInfo logout={logout} authenticationState={authenticationState} accountInfo={accountInfo}/>
+					</Nav>
+				</Navbar.Collapse>
+			</Container>
+		</Navbar>
+		<div>
+		<Container fluid="md" className="mb-5">
+			  <React.Fragment>
+				<Route exact path="/" component={Home} />
+				<Route path="/covid-codes" component={CovidCodesList}/>				
+				<Route exact path="/exposure-config" component={ExposureConfig} />
+				<Route exact path="/unauthorised" component={Unauthorised} />
+			  </React.Fragment>
+		</Container>
+		</div>
+		<footer className="footer">
+			<div className="container">	
+				<nav className="navbar navbar-light navbar-expand-md justify-content-center">
+        			<ul className="navbar-nav w-100 mr-auto">
+						<a href="http://www.gov.mt" target="_blank">
+							<img border="0" src="gov-mt-logo.png" alt="gov.mt logo" id="gov_img"/>
+						</a>
+        			</ul>
+        			<ul className="navbar-nav w-100 justify-content-center">
+            			<li className="nav-item">
+                			<a className="nav-link" href="/about">About</a>
+            			</li>
+            			<li className="nav-item">
+                			<a className="nav-link" href="//codeply.com">Terms of Use</a>
+            			</li>
+        			</ul>
+        			<ul className="nav navbar-nav ml-auto w-100 justify-content-end">
+						<li className="nav-item">
+							<a className="nav-link" href="http://mita.gov.mt" target="_blank"> 
+								Developed and hosted by MITA
+								<img border="0" src="mita_logo_small.png" alt="MITA Logo" id="mita_img" className="ml-2"/>
+							</a>		                    
+            			</li>
+        			</ul>
+				</nav>
+			</div>
+		</footer>		
+
+	</Router>
+	)
+	
+  }
+
+}
+
+function AuthenticationInfo(props) {
+	switch (props.authenticationState) {
+        case AuthenticationState.Authenticated:
+          	return (
+				<React.Fragment>
+					<Navbar.Text>Logged in as</Navbar.Text>
+					<NavDropdown title={props.accountInfo.account.name}>
+						<NavDropdown.Item href="#" onClick={props.logout}>Logout</NavDropdown.Item>
+					</NavDropdown>
+				</React.Fragment>
+				);
+        case AuthenticationState.Unauthenticated:
+          return (<Navbar.Text>You are not logged in</Navbar.Text>);
+        case AuthenticationState.InProgress:
+          return (<Navbar.Text>Authenticating...</Navbar.Text>);
+      }
 }
 
 export default App;
