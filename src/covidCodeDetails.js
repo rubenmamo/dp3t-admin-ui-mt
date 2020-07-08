@@ -44,23 +44,30 @@ class CovidCodeDetails extends Component {
                 "Content-Type": "application/json",
             }
 		})
-        .then(result => {
-			if (!result.ok)	{
-				if (result.status === 401) {
-					history.push('/unauthorised');
-				}
-			}
-			return result;
-		})		
-        .then(res => res.json())
         .then(
             (result) => {
-                this.setState({
-                    isLoaded: true,
-					data: result,
-					error: null
-                });
-            },
+				if (!result.ok)	{
+					if (result.status === 401) {
+						history.push('/unauthorised');
+					} else {
+						result.text().then(message => {
+							this.setState({
+								isLoaded: false,
+								error: message || "Unexpected error"
+							});
+						})		
+					}
+				} else {
+					result.json().then(result => {
+						this.setState({
+							isLoaded: true,
+							data: result,
+							error: null
+						});		
+					})
+				}	
+			},
+			
             (error) => {
                 this.setState({
 					isLoaded: false,
@@ -89,10 +96,11 @@ class CovidCodeDetails extends Component {
 		const { error, isLoaded } = this.state;
 		
         if (error) {
-            return <Error message={error.message}/>;
+            return <Error message={error.message || error}/>;
         } else {
 			return (
 				<BlockUi tag="div" blocking={!isLoaded}>
+					<Container fluid="md">
 					<h3 className="mt-3">CovidCode Registration</h3>				
 					<Form className="mt-3">
 						<Form.Group as={Row} controlId="specimenNumber">
@@ -148,6 +156,7 @@ class CovidCodeDetails extends Component {
 						</Col>
 					</Form.Group>
 					</Form>
+					</Container>
 				</BlockUi>
 			);
 		}

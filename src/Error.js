@@ -3,18 +3,18 @@ import Jumbotron from 'react-bootstrap/Jumbotron';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
+import Container from 'react-bootstrap/Container';
 
 class Error extends Component {
 
   render() {
     return (
-		<React.Fragment>
+		<Container fluid="md" className="mb-5">
 			<Jumbotron className="mt-2">
 		<Row>
-			<Col xs="5" className="ml-5">
+			<Col md="5" className="ml-md-5">
 				<Image src="undraw_cancel_u1it.svg" fluid />
 			</Col>
-			<Col xs="1"></Col>
 			<Col xs="auto">
 				<h1>We have a situation.</h1>
 				<p>Something went wrong during the last operation.</p>
@@ -23,7 +23,7 @@ class Error extends Component {
 			</Col>
 		</Row>
 		</Jumbotron>
-		</React.Fragment>
+		</Container>
 	);
   }
 }

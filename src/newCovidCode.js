@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 
+import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
@@ -76,19 +77,15 @@ class NewCovidCode extends Component {
 			},
 			body: JSON.stringify(c)
 		})
-        .then(result => {
+		.then(result => {
 			if (!result.ok)	{
 				if (result.status === 401) {
 					history.push('/unauthorised');
+				} else {
+					result.text().then(message => {
+						this.setState({error: message || "Unexpected error", saving: false});					
+					})
 				}
-			}
-			return result;
-		})
-		.then(result => {
-			if (!result.ok)	{
-				result.text().then(message => {
-					this.setState({error: message, saving: false});
-				})
 			} else {
 				result.json().then(result => { 
 					this.setState(
@@ -280,7 +277,7 @@ class NewCovidCode extends Component {
 		const {validation, modal} = this.state;
 
 		return (
-			<React.Fragment>
+			<Container fluid="md" className="mb-5">
 				{ this.renderAlert() }
 				{ this.renderSaveSuccess() }
 				<h3 className="mt-3">New CovidCode Registration</h3>				
@@ -367,7 +364,7 @@ class NewCovidCode extends Component {
 						</Col>
 					</Form.Group>
 				</Form>
-			</React.Fragment>
+			</Container>
 		);
 	}
 

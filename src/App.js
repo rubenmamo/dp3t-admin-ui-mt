@@ -47,7 +47,7 @@ class App extends Component {
 	<Router history={history}>
 		<Navbar id="header-navbar" bg="dark" variant="dark" expand="md">
 			<Container fluid="md">
-				<Navbar.Brand href="#home">CovidMalta</Navbar.Brand>
+				<Navbar.Brand href="#home">CovidAlert Malta</Navbar.Brand>
 				<Navbar.Toggle aria-controls="basic-navbar-nav" />
 				<Navbar.Collapse id="basic-navbar-nav">
 					<Nav className="mr-auto">
@@ -61,17 +61,13 @@ class App extends Component {
 				</Navbar.Collapse>
 			</Container>
 		</Navbar>
-		<div>
-		<Container fluid="md" className="mb-5">
-			  <React.Fragment>
-				<Route exact path="/" component={Home} />
-				<Route path="/covid-codes" component={CovidCodesList}/>				
-				<Route exact path="/exposure-config" component={ExposureConfig} />
-				<Route exact path="/unauthorised" component={Unauthorised} />
-			  </React.Fragment>
-		</Container>
+		<div style={{marginBottom: "200px"}}>
+			<Route exact path="/" component={Home} />
+			<Route path="/covid-codes" component={CovidCodesList}/>				
+			<Route exact path="/exposure-config" component={ExposureConfig} />
+			<Route exact path="/unauthorised" component={Unauthorised} />
 		</div>
-		<footer className="footer">
+		<footer className="footer bg-light">
 			<div className="container">	
 				<nav className="navbar navbar-light navbar-expand-md justify-content-center">
         			<ul className="navbar-nav w-100 mr-auto">
@@ -88,7 +84,7 @@ class App extends Component {
             			</li>
         			</ul>
         			<ul className="nav navbar-nav ml-auto w-100 justify-content-end">
-						<li className="nav-item">
+						<li className="nav-item d-none d-lg-inline-block">
 							<a className="nav-link" href="http://mita.gov.mt" target="_blank"> 
 								Developed and hosted by MITA
 								<img border="0" src="mita_logo_small.png" alt="MITA Logo" id="mita_img" className="ml-2"/>

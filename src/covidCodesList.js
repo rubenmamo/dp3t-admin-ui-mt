@@ -46,21 +46,26 @@ function RevokeButton(props) {
                 "Content-Type": "application/json",
             }
         })
-        .then(result => {
-			if (!result.ok)	{
-				if (result.status === 401) {
-					props.onRevokeUnauthorised();
-				}				
-			}
-			return result;
-		})
-		.then(res => res.json())
         .then(
-
+			
 			(result) => { 
-				setShow(false);
-				setRevoking(false);
-				props.onRevokeSuccess();
+				if (!result.ok)	{
+					if (result.status === 401) {
+						props.onRevokeUnauthorised();
+					} else {
+						result.text().then(message => {
+							setShow(false);
+							setRevoking(false);
+							props.onRevokeFail(message || "Unexpected error");
+						})
+					}
+				} else {
+					result.json().then(result => { 
+						setShow(false);
+						setRevoking(false);
+						props.onRevokeSuccess();
+					});
+				}
 			},
 
             (error) => {
@@ -186,32 +191,40 @@ class CovidCodesList extends Component {
                 "Content-Type": "application/json",
             }
         })
-        .then(result => {
-			if (!result.ok)	{
-				if (result.status === 401) {
-					history.push('/unauthorised');
+		.then(
+
+			(result) => { 
+				if (!result.ok)	{
+					if (result.status === 401) {
+						history.push('/unauthorised');
+					} else {
+						result.text().then((message) => {
+							this.setState({
+								isLoaded: false,
+								refreshing: false,
+								error: message || "Unexpected error"
+							});
+						})
+					}
+				} else {
+					result.json().then(result => { 
+						this.setState({
+							isLoaded: true,
+							refreshing: false,
+							data: result.covidCodes,
+							total: result.total,
+							lastRefresh: new Date(),
+							error: null,
+							sidebarOpen: true
+						});
+					});
 				}
-			}
-			return result;
-		})
-        .then(res => res.json())
-        .then(
-            (result) => {				
-                this.setState({
-					isLoaded: true,
-					refreshing: false,
-					data: result.covidCodes,
-					total: result.total,
-					lastRefresh: new Date(),
-					error: null,
-					sidebarOpen: true
-                });
-            },
+			},
+
             // Note: it's important to handle errors here
             // instead of a catch() block so that we don't swallow
             // exceptions from actual bugs in components.
             (error) => {
-				console.log(error);
                 this.setState({
 					isLoaded: false,
 					refreshing: false,
@@ -236,8 +249,8 @@ class CovidCodesList extends Component {
             <tr key={covidCode.id}>
 				<td>{covidCode.specimenNumber}</td>
 				<td><Moment format="LL">{covidCode.receiveDate}</Moment></td>
-				<td><Moment format="LL">{covidCode.onsetDate}</Moment></td>
-				<td>{covidCode.transmissionRisk}</td>
+				<td className="d-none d-md-table-cell"><Moment format="LL">{covidCode.onsetDate}</Moment></td>
+				<td className="d-none d-md-table-cell">{covidCode.transmissionRisk}</td>
 				<td>{covidCode.authorisationCodePretty}</td>
 				<td className="d-none d-md-table-cell"><Moment local>{covidCode.registeredAt}</Moment></td>
 				<td className="d-none d-md-table-cell"><Moment fromNow>{covidCode.expiresAt}</Moment></td>
@@ -366,70 +379,81 @@ class CovidCodesList extends Component {
 		const { isLoaded, refreshing } = this.state;
 		return (
 			<React.Fragment>
-				<Navbar bg="light">
-					<Nav>
-						<Nav.Item>
+				<Navbar bg="light" expand="md">
+					<Container fluid="md">
+						<Nav.Item className="w-100 d-none d-md-inline-block">
 							<Button onClick={() => { history.push('/covid-codes/new'); }}>New</Button>
 						</Nav.Item>
-					</Nav>
-					<Form className="ml-auto">
-						<Form.Row className="align-items-center">
-							<Col xs="auto">
-								<FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={e =>  this.setQuery(e) }/>
-							</Col>
-							<Col xs="auto">
-								<Form.Check type="checkbox" id="autoSizingCheck" label="Inc. Closed" onChange={e =>  this.setIncludeClosed(e) }/>
-							</Col>
-							<Col xs="auto">
-								{this.renderSearchButton()}
-							</Col>
-						</Form.Row>
-					</Form>
+						<Nav.Item className="w-100">
+							<Form>
+								<Form.Row className="justify-content-end">
+									<Col md="3" xs="12">
+										<Form.Check type="checkbox" label="Inc. Closed" onChange={e =>  this.setIncludeClosed(e) }/>
+									</Col>
+									<Col md="6" xs="7">
+										<FormControl type="text" placeholder="Search" className="mr-sm-2" onChange={e =>  this.setQuery(e) }/>
+									</Col>
+									<Col md="3" xs="5">
+										{this.renderSearchButton()}
+									</Col>
+								</Form.Row>
+							</Form>
+						</Nav.Item>
+					</Container>
 				</Navbar>	
-				<Row className="mt-3"><Col>
-				<Table responsive>
-					<thead>
-						<tr>
-							<th className="nces-sortable-col">{ this.renderSortStatus("Specimen No.","specimen_no") }</th>
-							<th className="nces-sortable-col">{ this.renderSortStatus("Receive Date","receive_date") }</th>
-							<th className="nces-sortable-col">{ this.renderSortStatus("Onset Date", "onset_date") }</th>
-							<th>Risk Level</th>
-							<th>Auth. Code</th>
-							<th className="nces-sortable-col d-none d-md-table-cell">{ this.renderSortStatus("Registered","registered_at") }</th>
-							<th className="nces-sortable-col d-none d-md-table-cell">{ this.renderSortStatus("Expires","expires_at") }</th>
-							<th className="d-none d-md-table-cell">Revoked</th>
-							<th className="d-none d-md-table-cell">Redeemed</th>
-							<th>#</th>
-						</tr>
-					</thead>
-					<BlockUi tag="tbody" blocking={!isLoaded || refreshing}>
-						{ this.renderCovidCodes() }
-					</BlockUi>
-				</Table>
-				</Col></Row>
-				<Row className="mt-3"><Col>
-				<div className="d-flex justify-content-between">
-					<div className="p-2 bd-highlight">
-						<Form inline>
-							<Form.Row>
-								<Form.Group as={Col} controlId="formGridState">
-      								<Form.Label>Show every:</Form.Label>
-									<Form.Control as="select" defaultValue="10" className="ml-1" onChange={e => this.setPageSize(e) }>
-										<option>10</option>
-										<option>25</option>
-										<option>50</option>
-										<option>100</option>
-									</Form.Control>
-    							</Form.Group>
-							</Form.Row>
-						</Form>
-					</div>
-					<div className="p-2 bd-highlight">{ this.renderPagination() }</div>
-					<div className="p-2 bd-highlight">
-						Last refreshed on <Badge variant="primary" size="small"><Moment format="DD-MM-YY HH:mm:ss" date={this.state.lastRefresh} /></Badge>
-					</div>
-				</div>					
-				</Col></Row>
+				<Container fluid="md" className="mb-5">
+					<Row className="mt-3">
+						<Table responsive striped hover>
+							<thead>
+								<tr>
+									<th className="nces-sortable-col">{ this.renderSortStatus("Specimen No.","specimen_no") }</th>
+									<th className="nces-sortable-col">{ this.renderSortStatus("Receive Date","receive_date") }</th>
+									<th className="nces-sortable-col d-none d-md-table-cell">{ this.renderSortStatus("Onset Date", "onset_date") }</th>
+									<th className="d-none d-md-table-cell">Risk Level</th>
+									<th style={{minWidth: "150px"}}>Auth. Code</th>
+									<th className="nces-sortable-col d-none d-md-table-cell">{ this.renderSortStatus("Registered","registered_at") }</th>
+									<th className="nces-sortable-col d-none d-md-table-cell">{ this.renderSortStatus("Expires","expires_at") }</th>
+									<th className="d-none d-md-table-cell">Revoked</th>
+									<th className="d-none d-md-table-cell">Redeemed</th>
+									<th style={{minWidth: "120px"}}>#</th>
+								</tr>
+							</thead>
+							<BlockUi tag="tbody" blocking={!isLoaded || refreshing}>
+								{ this.renderCovidCodes() }
+							</BlockUi>
+						</Table>
+					</Row>
+					<Row className="mt-3">
+						<Col md="4" xs="6">
+							<Form inline>
+								<Form.Row>
+									<Form.Group as={Col} controlId="formGridState">
+										<Form.Label className="d-none d-md-inline-block">Show every:</Form.Label>
+										<Form.Control as="select" defaultValue="10" className="ml-1" onChange={e => this.setPageSize(e) }>
+											<option>10</option>
+											<option>25</option>
+											<option>50</option>
+											<option>100</option>
+										</Form.Control>
+									</Form.Group>
+								</Form.Row>
+							</Form>
+						</Col>
+						<Col md="4" xs="6">
+							<span className="w-100 d-flex justify-content-end justify-content-md-center">
+								{ this.renderPagination() }
+							</span>
+						</Col>
+						<Col md="4" xs="12">
+							<span className="w-100 d-flex justify-content-end">
+								Last refreshed on <Badge variant="primary" size="small"><Moment format="DD-MM-YY HH:mm:ss" date={this.state.lastRefresh} /></Badge>
+							</span>
+						</Col>
+					</Row>
+				</Container>
+				<span className="fixed-bottom d-flex justify-content-end d-md-none" style={{zIndex: 5000, right: "15px", bottom: "100px"}}>
+					<Button className="btn-circle btn-lg" onClick={() => { history.push('/covid-codes/new'); }}><i className="fa fa-plus" aria-hidden="true"></i></Button>
+				</span>
 			</React.Fragment>
 		)
 		
@@ -440,20 +464,18 @@ class CovidCodesList extends Component {
         const { match } = this.props;
 
         if (error) {
-            return <Error message={error.message}/>;
+            return <Error message={error.message || error}/>;
         } else {
             return (
-				<React.Fragment>
-					<Switch>
-						<Route exact path={`${match.url}/`} component={this.browseCovidCodes}/>
-						<Route exact path={`${match.url}/new`}>
-							<NewCovidCode onRegistration={this.refreshData}/>
-						</Route>
-						<Route path={`${match.url}/:id`}>
-							<CovidCodeDetails/>
-						</Route>
-					</Switch>
-				</React.Fragment>
+				<Switch>
+					<Route exact path={`${match.url}/`} component={this.browseCovidCodes}/>
+					<Route exact path={`${match.url}/new`}>
+						<NewCovidCode onRegistration={this.refreshData}/>
+					</Route>
+					<Route path={`${match.url}/:id`}>
+						<CovidCodeDetails/>
+					</Route>
+				</Switch>
 				
             );
           }    
