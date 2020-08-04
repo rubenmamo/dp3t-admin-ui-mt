@@ -9,70 +9,155 @@
  */
  
 import React, { Component } from 'react';
+import './App.css';
+import Error from './Error';
 
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import FormControl from 'react-bootstrap/FormControl';
-import Button from 'react-bootstrap/Button';
+import Moment from 'react-moment';
+import 'moment-timezone';
+import { withRouter } from "react-router";
+import { authProvider } from './authProvider';
+import BlockUi from 'react-block-ui';
 
 class ExposureConfig extends Component {
 
-  render() {
-    return (
-		<React.Fragment>
-		<h3 className="mt-3">Exposure Configuration</h3>
-		<Form className="mt-3">
-			<Form.Group>
-				<Form.Label><h4>Transmission Risk</h4></Form.Label>
-				<Form.Row>
-					<Col>
-						<Form.Label>Unused</Form.Label>
-						<Form.Control placeholder="0-8" />
-					</Col>
-					<Col>
-						<Form.Label>Confirmed test - Low transmission risk level</Form.Label>
-						<Form.Control placeholder="0-8" />
-					</Col>
-					<Col>
-						<Form.Label>Confirmed test - Standard transmission risk level</Form.Label>
-						<Form.Control placeholder="0-8" />
-					</Col>
-					<Col>
-						<Form.Label>Confirmed test - High transmission risk level</Form.Label>
-						<Form.Control placeholder="0-8" />
-					</Col>
-					<Col>
-						<Form.Label>Confirmed clinical diagnosis</Form.Label>
-						<Form.Control placeholder="0-8" />
-					</Col>
-					<Col>
-						<Form.Label>Self report</Form.Label>
-						<Form.Control placeholder="0-8" />
-					</Col>
-					<Col>
-						<Form.Label>Negative case</Form.Label>
-						<Form.Control placeholder="0-8" />
-					</Col>
-					<Col>
-						<Form.Label>Recursive case</Form.Label>
-						<Form.Control placeholder="0-8" />
-					</Col>
-					<Col>
-						<Form.Label>Unused/custom</Form.Label>
-						<Form.Control placeholder="0-8" />
-					</Col>
-				</Form.Row>
-			</Form.Group>
-  
-  <Button variant="primary" type="submit">
-    Submit
-  </Button>
-</Form>
-</React.Fragment>
-	);
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            error: null,
+            isLoaded: false,
+			data: []
+          };
+    }
+
+    componentDidMount() {
+        this.loadConfig();
+	}
+	
+    loadConfig = async () => {
+		const { history } = this.props;
+		const urlBase = process.env.NODE_ENV === 'production' ? process.env.REACT_APP_CONFIG_BASE_URL : 'http://localhost:8080';
+		const token = await authProvider.getIdToken();
+
+		let url = urlBase + "/v1/config?appversion=XXX&osversion=XXX&buildnr=XXX"
+		
+        return fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            }
+		})
+        .then(
+            (result) => {
+				if (!result.ok)	{
+					if (result.status === 401) {
+						history.push('/unauthorised');
+					} else {
+						result.text().then(message => {
+							this.setState({
+								isLoaded: false,
+								error: message || "Unexpected error"
+							});
+						})		
+					}
+				} else {
+					result.json().then(result => {
+						console.log("9999999999999999999999999999999999999999");
+						console.log(JSON.stringify(result));
+						this.setState({
+							isLoaded: true,
+							data: result,
+							error: null
+						});		
+					})
+				}	
+			},
+			
+            (error) => {
+                this.setState({
+					isLoaded: false,
+					error
+                });
+            }
+        )
+    }	
+
+	render() {
+		const { error, isLoaded, data } = this.state;
+
+        if (error) {
+            return <Error message={error.message || error}/>;
+        } else {
+			return (
+				<BlockUi tag="div" blocking={!isLoaded}>
+					<Container fluid="md">
+					<h3 className="mt-3">Exposure Notifications Configuration</h3>
+					<h4 className="mt-3">Android</h4>
+					<SdkConfig config={data.androidGaenSdkConfig || {}}/>
+					<h4 className="mt-3">iOS</h4>
+					<SdkConfig config={data.iOSGaenSdkConfig || {}}/>
+					</Container>
+				</BlockUi>
+			);
+		}
+	}
+
 }
 
-export default ExposureConfig;
+function SdkConfig(props) {
+
+	return (
+		<Form className="mt-3">
+			<Form.Group as={Row} controlId="attenuationThresholdLow">
+				<Form.Label column sm="3">
+					Attenuation Threshold Low
+				</Form.Label>
+				<Col sm="9">
+					<Form.Control plaintext placeholder="Attenuation Threshold Low" defaultValue={ props.config.lowerThreshold } />
+				</Col>
+			</Form.Group>
+			<Form.Group as={Row} controlId="attenuationThresholdHigh">
+				<Form.Label column sm="3">
+					Attenuation Threshold High
+				</Form.Label>
+				<Col sm="9">
+					<Form.Control plaintext placeholder="Attenuation Threshold High" defaultValue={ props.config.higherThreshold } />
+				</Col>
+			</Form.Group>
+			<Form.Group as={Row} controlId="attenuationThresholdLowFactor">
+				<Form.Label column sm="3">
+					Attenuation Threshold Low Factor
+				</Form.Label>
+				<Col sm="9">
+					<Form.Control plaintext placeholder="Attenuation Threshold Low Factor" defaultValue={ props.config.factorLow } />
+				</Col>
+			</Form.Group>
+			<Form.Group as={Row} controlId="attenuationThresholdHighFactor">
+				<Form.Label column sm="3">
+					Attenuation Threshold High Factor
+				</Form.Label>
+				<Col sm="9">
+					<Form.Control plaintext placeholder="Attenuation Threshold High Factor" defaultValue={ props.config.factorHigh } />
+				</Col>
+			</Form.Group>
+			<Form.Group as={Row} controlId="triggerThreshold">
+				<Form.Label column sm="3">
+					Minimum Duration for Exposure
+				</Form.Label>
+				<Col sm="9">
+					<Form.Control plaintext placeholder="Minimum Duration for Exposure" defaultValue={ props.config.triggerThreshold } />
+				</Col>
+			</Form.Group>
+		</Form>
+
+	);
+}
+
+export default withRouter(ExposureConfig);
+

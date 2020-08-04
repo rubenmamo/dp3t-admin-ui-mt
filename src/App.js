@@ -63,7 +63,7 @@ class App extends Component {
 					<Nav className="mr-auto">
 						<NavLink exact={true} className="nav-link" to="/">Home</NavLink>
 						<NavLink className="nav-link" to="/covid-codes">CovidCodes</NavLink>
-						{/*<NavLink exact={true} className="nav-link" to="/exposure-config">Exposure Configuration</NavLink>*/}
+						<NavLink exact={true} className="nav-link" to="/exposure-config">Exposure Configuration</NavLink>
 					</Nav>
 					<Nav className="ml-auto">
 						<AuthenticationInfo logout={logout} authenticationState={authenticationState} accountInfo={accountInfo}/>
