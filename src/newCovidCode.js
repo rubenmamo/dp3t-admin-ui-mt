@@ -36,7 +36,7 @@ import { withRouter } from "react-router";
 class NewCovidCode extends Component {
 
 	initState = {
-		covidCode: {specimenNumber: "", receiveDate: "", onsetDate: "", transmissionRisk: ""}, 
+		covidCode: {specimenNumber: "", receiveDate: "", onsetDate: "", transmissionRisk: "0"}, 
 		validation: {
 			specimenNumber: {wasInvalid: false, valid: true, message: "Seems fine"},
 			receiveDate: {wasInvalid: false, valid: true, message: "Seems fine"},
@@ -54,7 +54,7 @@ class NewCovidCode extends Component {
 
 	resetState() {
 		this.setState({
-			covidCode: {specimenNumber: "", receiveDate: "", onsetDate: "", transmissionRisk: ""}, 
+			covidCode: {specimenNumber: "", receiveDate: "", onsetDate: "", transmissionRisk: "0"}, 
 			validation: {
 				specimenNumber: {wasInvalid: false, valid: true, message: "Seems fine"},
 				receiveDate: {wasInvalid: false, valid: true, message: "Seems fine"},
@@ -346,6 +346,7 @@ class NewCovidCode extends Component {
 						{this.maybeRenderFeedback(validation.onsetDate)}
 						</Col>
 					</Form.Group>
+					{/*
 					<Form.Group as={Row} controlId="transmissionRisk">
 						<Form.Label column sm="2">
 							Transmission Risk Level
@@ -365,6 +366,7 @@ class NewCovidCode extends Component {
 
 						</Col>
 					</Form.Group>
+					 */}
 					<Form.Group as={Row}>
 						<Col>								
 							{this.renderRegisterButton()}
