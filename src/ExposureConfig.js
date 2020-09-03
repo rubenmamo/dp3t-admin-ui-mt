@@ -68,8 +68,6 @@ class ExposureConfig extends Component {
 					}
 				} else {
 					result.json().then(result => {
-						console.log("9999999999999999999999999999999999999999");
-						console.log(JSON.stringify(result));
 						this.setState({
 							isLoaded: true,
 							data: result,
@@ -119,7 +117,7 @@ function SdkConfig(props) {
 					Attenuation Threshold Low
 				</Form.Label>
 				<Col sm="9">
-					<Form.Control plaintext placeholder="Attenuation Threshold Low" defaultValue={ props.config.lowerThreshold } />
+					<Form.Control disabled placeholder="Attenuation Threshold Low" defaultValue={ props.config.lowerThreshold } />
 				</Col>
 			</Form.Group>
 			<Form.Group as={Row} controlId="attenuationThresholdHigh">
@@ -127,7 +125,7 @@ function SdkConfig(props) {
 					Attenuation Threshold High
 				</Form.Label>
 				<Col sm="9">
-					<Form.Control plaintext placeholder="Attenuation Threshold High" defaultValue={ props.config.higherThreshold } />
+					<Form.Control disabled placeholder="Attenuation Threshold High" defaultValue={ props.config.higherThreshold } />
 				</Col>
 			</Form.Group>
 			<Form.Group as={Row} controlId="attenuationThresholdLowFactor">
@@ -135,7 +133,7 @@ function SdkConfig(props) {
 					Attenuation Threshold Low Factor
 				</Form.Label>
 				<Col sm="9">
-					<Form.Control plaintext placeholder="Attenuation Threshold Low Factor" defaultValue={ props.config.factorLow } />
+					<Form.Control disabled placeholder="Attenuation Threshold Low Factor" defaultValue={ props.config.factorLow } />
 				</Col>
 			</Form.Group>
 			<Form.Group as={Row} controlId="attenuationThresholdHighFactor">
@@ -143,7 +141,7 @@ function SdkConfig(props) {
 					Attenuation Threshold High Factor
 				</Form.Label>
 				<Col sm="9">
-					<Form.Control plaintext placeholder="Attenuation Threshold High Factor" defaultValue={ props.config.factorHigh } />
+					<Form.Control disabled placeholder="Attenuation Threshold High Factor" defaultValue={ props.config.factorHigh } />
 				</Col>
 			</Form.Group>
 			<Form.Group as={Row} controlId="triggerThreshold">
@@ -151,7 +149,7 @@ function SdkConfig(props) {
 					Minimum Duration for Exposure
 				</Form.Label>
 				<Col sm="9">
-					<Form.Control plaintext placeholder="Minimum Duration for Exposure" defaultValue={ props.config.triggerThreshold } />
+					<Form.Control disabled placeholder="Minimum Duration for Exposure" defaultValue={ props.config.triggerThreshold } />
 				</Col>
 			</Form.Group>
 		</Form>
