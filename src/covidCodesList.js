@@ -184,14 +184,13 @@ class CovidCodesList extends Component {
 			+ "&size=" + pageSize
 			+ "&sort=" + sort
 			+ "&order=" + order
-		
-		if (query === "") {
+			
+		if (query.trim() == "") {
 			url += "&all=" + (includeClosed ? "Y" : "N");
 		} else {
 			url += "&all=Y&q=" + query;
 		}
-			
-		
+
 		console.log(url);
 		
         return fetch(url, {
@@ -292,7 +291,7 @@ class CovidCodesList extends Component {
 		let total = this.state.total;
 		let batchSize = pageSize;
 		
-		let numberOfPages = (total / batchSize) + ((total % batchSize) > 0 ? 1 : 0);
+		let numberOfPages = Math.floor(total / batchSize) + ((total % batchSize) > 0 ? 1 : 0);
 		let firstPage = page - 2;
 		let lastPage = page + 2;
 		if (firstPage < 1) {
@@ -318,13 +317,13 @@ class CovidCodesList extends Component {
 	setQuery(e) {
 		console.log("Setting query to " + e.target.value);
 		const {filter} = this.state;
-		let newFilter = {...filter, query: e.target.value};
+		let newFilter = {...filter, query: e.target.value, page: 1};
 		this.setState({filter: newFilter});		
 	}
 
 	setIncludeClosed(e) {
 		const {filter} = this.state;
-		let newFilter = {...filter, includeClosed: e.target.checked};
+		let newFilter = {...filter, includeClosed: e.target.checked, page: 1};
 		this.setState({filter: newFilter});		
 	}
 	
