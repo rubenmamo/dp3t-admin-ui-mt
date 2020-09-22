@@ -32,21 +32,12 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-	console.log(props.accountInfo);
-	console.log("***********************");
-	console.log(props.authenticationState);
-    // This binding is necessary to make `this` work in the callback
-    this.handleClick = this.handleClick.bind(this);
     this.state = {};
-  }
-
-  handleClick() {
-    history.push('/partner-apps');
   }
 
   componentDidMount() {
 
-    console.log("DP3T Management UI started");
+    console.log("DP3T Admin UI started");
   
   }
   
@@ -90,7 +81,7 @@ class App extends Component {
                 			<a className="nav-link" href="/about">About</a>
             			</li>
             			<li className="nav-item">
-                			<a className="nav-link" href="//codeply.com">Terms of Use</a>
+                			<a className="nav-link" href="/terms-of-use">Terms of Use</a>
             			</li>
         			</ul>
         			<ul className="nav navbar-nav ml-auto w-100 justify-content-end">
