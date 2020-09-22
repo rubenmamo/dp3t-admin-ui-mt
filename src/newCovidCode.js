@@ -17,6 +17,9 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 import moment from 'moment/moment.js'
 import 'moment-timezone';
 import DayPickerInput from 'react-day-picker/DayPickerInput';
@@ -141,9 +144,7 @@ class NewCovidCode extends Component {
 	  
     };
 	
-	handleDayChange = (selectedDay, modifiers, dayPickerInput) => {
-		const input = dayPickerInput.getInput();
-		const id = input.id;
+	handleDayChange = (id, selectedDay, modifiers, dayPickerInput) => {
 		const {covidCode, validation} = this.state;
 		covidCode[id] = moment(selectedDay).format("YYYY-MM-DD");
 		this.setState({covidCode: covidCode}, 
@@ -311,11 +312,35 @@ class NewCovidCode extends Component {
 							Receive Date
 						</Form.Label>
 						<Col sm="10">
-							<DayPickerInput onDayChange={this.handleDayChange} 
+							<DayPickerInput 
+							    component={props => <InputGroup>
+								                       <Form.Control {...props}/>
+														<InputGroup.Append>
+															<OverlayTrigger
+																trigger="click"
+																key="left"
+																placement="left"
+																overlay={
+																	<Popover id={`onset-date-popover`}>
+																		<Popover.Title as="h3">Receive Date</Popover.Title>
+																		<Popover.Content>
+																			The date on which the sample was received by the laboratory to be tested
+																			for COVID-19.
+																		</Popover.Content>
+																	</Popover>
+																	}>
+																<Button variant="secondary">
+																	<i className="fa fa-info-circle" aria-hidden="true"></i>
+																</Button>																
+															</OverlayTrigger>														
+														</InputGroup.Append>
+													</InputGroup>}
+								onDayChange={(s,m,d) => this.handleDayChange("receiveDate",s,m,d)} 
 								format="L"
 								formatDate={formatDate}
 								parseDate={parseDate}
 								placeholder={`${formatDate(new Date(), 'L', 'en-gb')}`}
+								value={this.state.covidCode.receiveDate}
         						dayPickerProps={{
           							locale: 'en-gb',
           							localeUtils: MomentLocaleUtils,
@@ -328,14 +353,40 @@ class NewCovidCode extends Component {
 					</Form.Group>
 					<Form.Group as={Row} controlId="onsetDate">
 						<Form.Label column sm="2">
-							Onset
+							Infectious onset date
 						</Form.Label>
 						<Col sm="10">
-							<DayPickerInput onDayChange={this.handleDayChange} 
+							
+							<DayPickerInput 
+							    component={props => <InputGroup>
+								                       <Form.Control {...props}/>
+														<InputGroup.Append>
+															<OverlayTrigger
+																trigger="click"
+																key="left"
+																placement="left"
+																overlay={
+																	<Popover id={`onset-date-popover`}>
+																		<Popover.Title as="h3">Infectious Onset Date</Popover.Title>
+																		<Popover.Content>
+																			The date on which it is estimated the patient became infectious.
+																			Only the infected keys from this date onwards will be uploaded and
+																			disseminated to other users of the App.
+																		</Popover.Content>
+																	</Popover>
+																	}>
+																<Button variant="secondary">
+																	<i className="fa fa-info-circle" aria-hidden="true"></i>
+																</Button>																
+															</OverlayTrigger>														
+														</InputGroup.Append>
+													</InputGroup>}
+								onDayChange={(s,m,d) => this.handleDayChange("onsetDate",s,m,d)} 
 								format="L"
 								formatDate={formatDate}
 								parseDate={parseDate}
 								placeholder={`${formatDate(new Date(), 'L', 'en-gb')}`}
+								value={this.state.covidCode.onsetDate}
         						dayPickerProps={{
           							locale: 'en-gb',
           							localeUtils: MomentLocaleUtils,
@@ -343,7 +394,7 @@ class NewCovidCode extends Component {
 								inputProps={{id: "onsetDate", 
 									className: (validation.onsetDate.valid ? "form-control " + (validation.onsetDate.wasInvalid ? " is-valid" : "") : "form-control is-invalid"), 
 									autoComplete: "off"}}/>
-						{this.maybeRenderFeedback(validation.onsetDate)}
+								{this.maybeRenderFeedback(validation.onsetDate)}
 						</Col>
 					</Form.Group>
 					{/*
