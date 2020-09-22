@@ -353,7 +353,7 @@ class NewCovidCode extends Component {
 					</Form.Group>
 					<Form.Group as={Row} controlId="onsetDate">
 						<Form.Label column sm="2">
-							Infectious onset date
+							Infectivity onset date
 						</Form.Label>
 						<Col sm="10">
 							
@@ -367,7 +367,7 @@ class NewCovidCode extends Component {
 																placement="left"
 																overlay={
 																	<Popover id={`onset-date-popover`}>
-																		<Popover.Title as="h3">Infectious Onset Date</Popover.Title>
+																		<Popover.Title as="h3">Infectivity Onset Date</Popover.Title>
 																		<Popover.Content>
 																			The date on which it is estimated the patient became infectious.
 																			Only the infected keys from this date onwards will be uploaded and
