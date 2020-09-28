@@ -85,12 +85,9 @@ class App extends Component {
             			</li>
         			</ul>
         			<ul className="nav navbar-nav ml-auto w-100 justify-content-end">
-						<li className="nav-item d-none d-lg-inline-block">
-							<a className="nav-link" href="http://mita.gov.mt" target="_blank"> 
-								Developed and hosted by MITA
-								<img border="0" src="mita_logo_small.png" alt="MITA Logo" id="mita_img" className="ml-2"/>
+							<a className="nav-link p-0" href="http://mita.gov.mt" target="_blank"> 
+								<img border="0" src="mita_logo_small_new.png" alt="MITA Logo" id="mita_img"/>
 							</a>		                    
-            			</li>
         			</ul>
 				</nav>
 			</div>
